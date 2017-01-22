@@ -1,0 +1,52 @@
+---
+- name: initialize playbook
+  #hosts: iperf-pandas-test.northcentralus.cloudapp.azure.com
+  hosts: "{{ vmname }}"
+  #hosts: azure
+  gather_facts: no
+  user: iperf
+
+  tasks:
+
+  - name: upgrade all packages to latest version
+    become: true
+    apt: >
+      update_cache=yes
+      upgrade=dist
+      cache_valid_time=1200
+
+  - name: check if a reboot is required
+    register: file
+    stat: path=/var/run/reboot-required get_md5=no
+
+  - name: ensure iperf is present and updated
+    become: true
+    apt: pkg=iperf state=installed update_cache=true cache_valid_time=1200
+
+  - name: set iperf to run in tcp mode at boot
+    become: true
+    lineinfile: >
+                state=present
+                insertbefore='exit 0'
+                path=/etc/rc.local
+                line='/usr/bin/iperf -s -D'
+
+  - name: set iperf to run in udp mode at boot
+    become: true
+    lineinfile: >
+                state=present
+                insertbefore='exit 0'
+                path=/etc/rc.local
+                line='/usr/bin/iperf -s -u -D'
+
+  - name: start iperf as tcp daemon
+    command: /usr/bin/iperf -s -D
+
+  - name: start iperf as udp daemon
+    command: /usr/bin/iperf -s -u -D
+
+  #- name: reboot the server if necessary
+    #become: true
+    #command: /sbin/reboot
+    #when: file.stat.exists == true
+...
