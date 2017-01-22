@@ -82,7 +82,7 @@
       storage_container: '{{ resgrp }}-pandas-test'
       storage_blob: '{{ resgrp }}-pandas-test.vhd'
       admin_username: iperf
-      admin_password: Password1!
+      admin_password: SpaceGhost!!1
       network_interfaces: '{{ resgrp }}-pandas-test-nic-01'
       image:
         offer: UbuntuServer
